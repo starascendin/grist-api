@@ -9,10 +9,13 @@ The `grist-api` package simplifies using the [Grist](https://www.getgrist.com)
 API in Javascript/TypeScript. There is also an analogous [Python
 package](https://pypi.org/project/grist-api/).
 
+## Update
+I added a few missing methods that maps to the REST api calls.
+
 ## Installation
 
 ```bash
-npm install grist-api
+npm install grist-api-extra
 ```
 
 ## Usage Example

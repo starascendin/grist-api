@@ -1,6 +1,6 @@
 {
   "name": "grist-api-extra",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "NodeJS client for interacting with Grist",
   "main": "dist/index.js",
   "scripts": {
@@ -8,8 +8,8 @@
     "test": "mocha 'test/lib/*.{js,ts}'",
     "prepack": "npm run build && npm test"
   },
-  "repository": "https://github.com/gristlabs/grist-api",
-  "author": "Grist Labs",
+  "repository": "https://github.com/starascendin/grist-api",
+  "author": "Bryan Liu",
   "license": "Apache-2.0",
   "files": [
     "dist",
