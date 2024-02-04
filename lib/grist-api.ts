@@ -254,6 +254,141 @@ export class GristDocAPI {
   }
 
   /**
+   * Modifies existing columns in the specified table.
+   *
+   * @param {string} tableName - The name of the table whose columns will be modified.
+   * @param {Array} columns - An array of objects representing the columns to modify. Each object should
+   *                          include the column's id and fields object with updates to apply.
+   * @returns {Promise<any>} - A promise that resolves with the response from the Grist API.
+   */
+  public async modifyColumns(tableName: string, columns: Array<{
+    id: string,
+    fields: {
+      type?: string,
+      label?: string,
+      formula?: string,
+      isFormula?: boolean,
+      widgetOptions?: string,
+      untieColIdFromLabel?: boolean,
+      recalcWhen?: number,
+      visibleCol?: number,
+      recalcDeps?: string,
+      colId?: string // Optionally include to change column ID.
+    }
+  }>): Promise<any> {
+    // Encode the table name to ensure it's a valid URL component.
+    const encodedTableName = encodeURIComponent(tableName);
+
+    // Prepare the request body with columns to modify, including their new configurations.
+    const requestBody = {
+      columns: columns.map(column => ({
+        id: column.id,
+        fields: column.fields
+      }))
+    };
+
+    // Make a PATCH request to the Grist API to modify the columns.
+    return await this._docCall(`tables/${encodedTableName}/columns`, requestBody, 'PATCH');
+  }  
+
+  /**
+   * Adds new columns to the specified table with detailed configuration for each column.
+   *
+   * @param {string} tableName - The name of the table to which columns will be added.
+   * @param {Array} columns - An array of objects representing the columns to add. Each object should
+   *                          include the column's id and fields object which itself includes type, label, etc.
+   * @returns {Promise<any>} - A promise that resolves with the response from the Grist API.
+   */
+  public async addColumns(tableName: string, columns: Array<{
+    id: string,
+    fields: {
+      label?: string,
+      type?: string,
+      formula?: string,
+      isFormula?: boolean,
+      widgetOptions?: string,
+      untieColIdFromLabel?: boolean,
+      recalcWhen?: number,
+      visibleCol?: number,
+      recalcDeps?: string
+    }
+  }>): Promise<any> {
+    // Encode the table name to ensure it's a valid URL component.
+    const encodedTableName = encodeURIComponent(tableName);
+
+    // Prepare the request body with the updated structure.
+    const requestBody = {
+      columns: columns.map(column => ({
+        id: column.id,
+        fields: column.fields
+      }))
+    };
+
+    // Make a POST request to the Grist API to add the columns.
+    return await this._docCall(`tables/${encodedTableName}/columns`, requestBody, 'POST');
+  }
+
+  /**
+   * Fetches a list of columns for the specified table.
+   *
+   * @param {string} tableName - The name of the table for which to list columns.
+   * @param {boolean} includeHidden - Whether to include hidden columns in the list.
+   * @returns {Promise<any[]>} - A promise that resolves to an array of column definitions.
+   */
+  public async listColumns(tableName: string, includeHidden: boolean = false): Promise<any[]> {
+    // Encode the table name to ensure it's a valid URL component, especially important if the name contains special characters.
+    const encodedTableName = encodeURIComponent(tableName);
+
+    // Construct the query parameter string based on whether hidden columns should be included.
+    const queryParams = includeHidden ? '?hidden=true' : '';
+
+    // Use the _docCall method to make a GET request to the specified endpoint.
+    // Note: Assumes that _docCall method can handle GET requests and query parameters correctly.
+    return await this._docCall(`tables/${encodedTableName}/columns${queryParams}`);
+  }  
+
+  /**
+   * Adds new columns to or updates existing columns in the specified table.
+   *
+   * @param {string} tableName - The name of the table to add or update columns.
+   * @param {Array} columns - An array of objects representing the columns to add or update. Each object should
+   *                          include the column's id and fields object with the column configuration.
+   * @param {Object} options - Optional parameters to control the behavior of the operation (noadd, noupdate, replaceall).
+   * @returns {Promise<any>} - A promise that resolves with the response from the Grist API.
+   */
+  public async addOrUpdateColumns(tableName: string, columns: Array<{
+    id: string,
+    fields: {
+      type?: string,
+      label?: string,
+      formula?: string,
+      isFormula?: boolean,
+      widgetOptions?: string,
+      untieColIdFromLabel?: boolean,
+      recalcWhen?: number,
+      visibleCol?: number,
+      recalcDeps?: string,
+      colId?: string
+    }
+  }>, options: { noadd?: boolean, noupdate?: boolean, replaceall?: boolean } = {}): Promise<any> {
+    // Encode the table name to ensure it's a valid URL component.
+    const encodedTableName = encodeURIComponent(tableName);
+
+    // Construct query parameters string from options object.
+    const queryParams = new URLSearchParams();
+    if (options.noadd) queryParams.append('noadd', 'true');
+    if (options.noupdate) queryParams.append('noupdate', 'true');
+    if (options.replaceall) queryParams.append('replaceall', 'true');
+    const queryString = queryParams.toString();
+
+    // Prepare the request body with columns to add or update.
+    const requestBody = { columns };
+
+    // Make a PUT request to the Grist API to add or update the columns, including query parameters if any.
+    return await this._docCall(`tables/${encodedTableName}/columns?${queryString}`, requestBody, 'PUT');
+  }
+
+  /**
    * Low-level interface to make a REST call.
    */
   private async _docCall(docRelUrl: string, data?: object|FormData, method?: Method) {
