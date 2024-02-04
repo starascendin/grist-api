@@ -15,7 +15,7 @@ I added a few missing methods that maps to the REST api calls.
 ## Installation
 
 ```bash
-npm install grist-api-extra
+npm install grist-api-extended
 ```
 
 ## Usage Example
